@@ -72,14 +72,16 @@ let config = {
 var cam = new camera();
 var view = {
     "background": [],
-    "player": []
+    "player": [],
+    "ball": []
 };
+/*
 for (var i = 0; i < 500; i++) {
     x = Math.floor(Math.random() * 100);
     y = Math.floor(Math.random() * 100);
     x = 20;
     y = 20;
-    rand_box = new box(Math.floor(Math.random() * 1200), Math.floor(Math.random() * 800), function(ctx, x, y) {
+    rand_box = new box(Math.floor(Math.random() * 1200), Math.floor(Math.random() * 800), function(ctx, x, y, key) {
         let view_x = this.xy.x - cam.xy.x;
         let view_y = this.xy.y - cam.xy.y;
         if (view_x + this.size.x < 0 || view_x > canvas.width || view_y + this.size.y < 0 || view_y > canvas.height)
@@ -89,8 +91,8 @@ for (var i = 0; i < 500; i++) {
     rand_box.size = new xy(x, y)
     view.background.push(rand_box);
 }
-
-let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, function(ctx, x, y) {
+*/
+let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, function(ctx, x, y, key) {
     let cy = this.xy.y;
     let cx = this.xy.x;
     if (new move().player_up() && new move().player_left()) {
@@ -117,6 +119,7 @@ let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, functio
     ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 10, 10);
 });
 view.player.push(player);
+
 
 class move {
     constructor(player = view.player[0]) {
@@ -155,6 +158,17 @@ class move {
 
 setInterval(function() {
 
+    let ball = new box(Math.floor(Math.random() * 1200), 0, function(ctx, x, y, key) {
+        let cy = this.xy.y;
+        let cx = this.xy.x;
+        this.xy.y += 3;
+        if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x)
+            delete view.ball.splice(key, 1);
+        ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 10, 10);
+    });
+    view.ball.push(ball);
+
+
     if (new move().cam_up() && new move().cam_left()) {
         cam.xy.y -= 7;
         cam.xy.x -= 7;
@@ -182,7 +196,8 @@ setInterval(function() {
     for (let group_key in view) {
         view[group_key].forEach(function(data) {
             entity++;
-            data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y);
+            data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, group_key);
         });
     };
+    console.log(entity);
 }, 30);
