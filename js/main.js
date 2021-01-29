@@ -98,7 +98,6 @@ for (var i = 0; i < 500; i++) {
 */
 
 
-console.log("aaaa");
 let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, function(ctx, x, y, key) {
     let cy = this.xy.y;
     let cx = this.xy.x;
@@ -123,8 +122,33 @@ let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, functio
     } else if (new move().player_right()) {
         this.xy.x += config.player.speed[0];
     }
+    let player = this;
+    view.ball.forEach(function(data, i) {
+        if (player.xy.y > data.xy.y - 10 && player.xy.y < data.xy.y + 10 && player.xy.x > data.xy.x - 10 && player.xy.x < data.xy.x + 10 && player.collision) {
+            player.collision = false;
+            player.remaining--;
+            if (player.remaining == -1) console.log("ゲームオーバー");
+            player.hidden = true;
+            for (var i = 0; i < 5; i++) {
+                setTimeout(function() {
+                    player.hidden = false;
+                }, 400 * i + 200);
+                setTimeout(function() {
+                    player.hidden = true;
+                }, 400 * i + 400);
+            }
+            setTimeout(function() {
+                player.hidden = false;
+                player.collision = true;
+            }, 2000);
+        }
+    });
+    if (this.hidden) return;
     ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 10, 10);
 });
+player.collision = true;
+player.remaining = 5;
+player.hidden = false;
 view.player.push(player);
 
 
@@ -182,9 +206,6 @@ function ball() {
             let view_y = this.xy.y - cam.xy.y;
             if (view_x + this.size.x < 0 || view_x > canvas.width || view_y + this.size.y < 0 || view_y > canvas.height)
                 return;
-
-            if (view.player[0].xy.y > this.xy.y - 10 && view.player[0].xy.y < this.xy.y + 10 && view.player[0].xy.x > this.xy.x - 10 && view.player[0].xy.x < this.xy.x + 10)
-                console.log("接触");
             ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), this.size.x, this.size.y);
         });
         ball.size = new xy(10, 10);
@@ -262,5 +283,6 @@ setInterval(function() {
         });
     };
     document.getElementById("entity").textContent = entity;
+    document.getElementById("remaining").textContent = view.player[0].remaining;
     time = new Date().getTime();
 }, 30);
