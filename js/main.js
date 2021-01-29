@@ -86,10 +86,7 @@ for (var i = 0; i < 500; i++) {
             return;
         ctx.strokeRect(x, y, this.size.x, this.size.y);
     });
-    rand_box.size = {
-        "x": x,
-        "y": y
-    }
+    rand_box.size = new xy(x, y)
     view.background.push(rand_box);
 }
 
