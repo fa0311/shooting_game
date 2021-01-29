@@ -66,7 +66,11 @@ function keydownfunc(event) {
 let keydata = new key();
 
 let config = {
-    "mapsize": new xy(1200, 800)
+    "mapsize": new xy(1200, 800),
+}
+
+config.player = {
+    "speed": [1.41421356237 * 5, 1 * 5]
 }
 
 var cam = new camera();
@@ -96,25 +100,25 @@ let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, functio
     let cy = this.xy.y;
     let cx = this.xy.x;
     if (new move().player_up() && new move().player_left()) {
-        this.xy.y -= 7;
-        this.xy.x -= 7;
+        this.xy.y -= config.player.speed[1];
+        this.xy.x -= config.player.speed[1];
     } else if (new move().player_left() && new move().player_down()) {
-        this.xy.y += 7;
-        this.xy.x -= 7;
+        this.xy.y += config.player.speed[1];
+        this.xy.x -= config.player.speed[1];
     } else if (new move().player_down() && new move().player_right()) {
-        this.xy.y += 7;
-        this.xy.x += 7;
+        this.xy.y += config.player.speed[1];
+        this.xy.x += config.player.speed[1];
     } else if (new move().player_right() && new move().player_up()) {
-        this.xy.y -= 7;
-        this.xy.x += 7;
+        this.xy.y -= config.player.speed[1];
+        this.xy.x += config.player.speed[1];
     } else if (new move().player_up()) {
-        this.xy.y -= 10;
+        this.xy.y -= config.player.speed[0];
     } else if (new move().player_left()) {
-        this.xy.x -= 10;
+        this.xy.x -= config.player.speed[0];
     } else if (new move().player_down()) {
-        this.xy.y += 10;
+        this.xy.y += config.player.speed[0];
     } else if (new move().player_right()) {
-        this.xy.x += 10;
+        this.xy.x += config.player.speed[0];
     }
     ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 10, 10);
 });
@@ -159,36 +163,42 @@ class move {
 setInterval(function() {
 
     let ball = new box(Math.floor(Math.random() * 1200), 0, function(ctx, x, y, key) {
+
         let cy = this.xy.y;
         let cx = this.xy.x;
         this.xy.y += 3;
         if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x)
             delete view.ball.splice(key, 1);
-        ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 10, 10);
+        let view_x = this.xy.x - cam.xy.x;
+        let view_y = this.xy.y - cam.xy.y;
+        if (view_x + this.size.x < 0 || view_x > canvas.width || view_y + this.size.y < 0 || view_y > canvas.height)
+            return;
+        ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), this.size.x, this.size.y);
     });
+    ball.size = new xy(10, 10)
     view.ball.push(ball);
 
 
     if (new move().cam_up() && new move().cam_left()) {
-        cam.xy.y -= 7;
-        cam.xy.x -= 7;
+        cam.xy.y -= config.player.speed[1];
+        cam.xy.x -= config.player.speed[1];
     } else if (new move().cam_left() && new move().cam_down()) {
-        cam.xy.y += 7;
-        cam.xy.x -= 7;
+        cam.xy.y += config.player.speed[1];
+        cam.xy.x -= config.player.speed[1];
     } else if (new move().cam_down() && new move().cam_right()) {
-        cam.xy.y += 7;
-        cam.xy.x += 7;
+        cam.xy.y += config.player.speed[1];
+        cam.xy.x += config.player.speed[1];
     } else if (new move().cam_right() && new move().cam_up()) {
-        cam.xy.y -= 7;
-        cam.xy.x += 7;
+        cam.xy.y -= config.player.speed[1];
+        cam.xy.x += config.player.speed[1];
     } else if (new move().cam_up()) {
-        cam.xy.y -= 10;
+        cam.xy.y -= config.player.speed[0];
     } else if (new move().cam_left()) {
-        cam.xy.x -= 10;
+        cam.xy.x -= config.player.speed[0];
     } else if (new move().cam_down()) {
-        cam.xy.y += 10;
+        cam.xy.y += config.player.speed[0];
     } else if (new move().cam_right()) {
-        cam.xy.x += 10;
+        cam.xy.x += config.player.speed[0];
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
