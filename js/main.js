@@ -94,30 +94,6 @@ for (var i = 0; i < 500; i++) {
 }
 
 let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, function(ctx, x, y) {
-
-    /*
-        if ((new move(false).up() && new move(false).left()) || (new move(false).re_up() && new move(false).re_left())) {
-            this.xy.y -= 7;
-            this.xy.x -= 7;
-        } else if ((new move(false).left() && new move(false).down()) || (new move(false).re_left() && new move(false).re_down())) {
-            this.xy.y += 7;
-            this.xy.x -= 7;
-        } else if ((new move(false).down() && new move(false).right()) || (new move(false).re_down() && new move(false).re_right())) {
-            this.xy.y += 7;
-            this.xy.x += 7;
-        } else if ((new move(false).right() && new move(false).up()) || (new move(false).re_right() && new move(false).re_up())) {
-            this.xy.y -= 7;
-            this.xy.x += 7;
-        } else if (new move(false).up() || new move(false).re_up()) {
-            this.xy.y -= 10;
-        } else if (new move(false).left() || new move(false).re_left()) {
-            this.xy.x -= 10;
-        } else if (new move(false).down() || new move(false).re_down()) {
-            this.xy.y += 10;
-        } else if (new move(false).right() || new move(false).re_right()) {
-            this.xy.x += 10;
-        }
-        */
     let cy = this.xy.y;
     let cx = this.xy.x;
     if (new move().player_up() && new move().player_left()) {
@@ -146,21 +122,24 @@ let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, functio
 view.player.push(player);
 
 class move {
-    constructor(flag = true, player = view.player[0]) {
-        this.flag = flag;
+    constructor(player = view.player[0]) {
         this.player = player;
     }
     cam_left() {
-        return (cam.xy.x > 0) == this.flag && keydata.left
+        if (this.player.xy.x > config.mapsize.x - canvas.width / 2) return false;
+        return cam.xy.x > 0 && keydata.left
     }
     cam_right() {
-        return (cam.xy.x < config.mapsize.x - canvas.width) == this.flag && keydata.right
+        if (this.player.xy.x < canvas.width / 2) return false;
+        return cam.xy.x < config.mapsize.x - canvas.width && keydata.right
     }
     cam_up() {
-        return (cam.xy.y > 0) == this.flag && keydata.up
+        if (this.player.xy.y > config.mapsize.y - canvas.height / 2) return false;
+        return cam.xy.y > 0 && keydata.up
     }
     cam_down() {
-        return (cam.xy.y < config.mapsize.y - canvas.height) == this.flag && keydata.down
+        if (this.player.xy.y < canvas.height / 2) return false;
+        return cam.xy.y < config.mapsize.y - canvas.height && keydata.down
     }
 
     player_left() {
@@ -210,65 +189,3 @@ setInterval(function() {
         });
     };
 }, 30);
-
-/*
-view.push(new box(0, 0, 10, 10, function(ctx, x, y) {
-    [{
-        "x": 1,
-        "y": 0
-    }, {
-        "x": 2,
-        "y": 0
-    }, {
-        "x": 3,
-        "y": 0
-    }, {
-        "x": 0,
-        "y": 1
-    }, {
-        "x": 1,
-        "y": 1
-    }, {
-        "x": 3,
-        "y": 1
-    }, {
-        "x": 4,
-        "y": 1
-    }, {
-        "x": 0,
-        "y": 2
-    }, {
-        "x": 4,
-        "y": 2
-    }, {
-        "x": 0,
-        "y": 3
-    }, {
-        "x": 1,
-        "y": 3
-    }, {
-        "x": 2,
-        "y": 3
-    }, {
-        "x": 3,
-        "y": 3
-    }, {
-        "x": 4,
-        "y": 3
-    }, {
-        "x": 0,
-        "y": 4
-    }, {
-        "x": 4,
-        "y": 4
-    }, {
-        "x": 0,
-        "y": 5
-    }, {
-        "x": 4,
-        "y": 5
-    }].forEach(function(data) {
-        ctx.strokeRect(data.x * 10 + x, data.y * 10 + y, 10, 10);
-    });
-}));
-*/
