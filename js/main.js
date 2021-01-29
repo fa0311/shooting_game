@@ -96,6 +96,9 @@ for (var i = 0; i < 500; i++) {
     view.background.push(rand_box);
 }
 */
+
+
+console.log("aaaa");
 let player = new box(config.mapsize.x / 2 - 5, config.mapsize.y / 2 - 5, function(ctx, x, y, key) {
     let cy = this.xy.y;
     let cx = this.xy.x;
@@ -160,24 +163,73 @@ class move {
     }
 }
 
+function ball() {
+    let r = Math.floor(Math.random() * 10);
+    for (var i = 0; i < 36; i++) {
+        let ball = new box(a, 100, function(ctx, x, y, key) {
+            this.xy.y += Math.cos(this.angle * Math.PI / 180) * this.speed;
+            this.xy.x += Math.sin(this.angle * Math.PI / 180) * this.speed;
+
+            let cy = this.xy.y;
+            let cx = this.xy.x;
+
+            if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x) {
+                view.ball.splice(key, 1);
+                return;
+            }
+
+            let view_x = this.xy.x - cam.xy.x;
+            let view_y = this.xy.y - cam.xy.y;
+            if (view_x + this.size.x < 0 || view_x > canvas.width || view_y + this.size.y < 0 || view_y > canvas.height)
+                return;
+
+            if (view.player[0].xy.y > this.xy.y - 10 && view.player[0].xy.y < this.xy.y + 10 && view.player[0].xy.x > this.xy.x - 10 && view.player[0].xy.x < this.xy.x + 10)
+                console.log("接触");
+            ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), this.size.x, this.size.y);
+        });
+        ball.size = new xy(10, 10);
+        ball.speed = 5;
+        ball.angle = i * 10 + r;
+        view.ball.push(ball);
+    }
+}
+let a = 400;
+let flag = false;
+setInterval(function() {
+    ball();
+    if (flag) {
+        a = a + 100;
+    } else {
+        a = a - 100;
+    }
+    if (a >= 800) {
+        flag = false;
+    }
+    if (a <= 400) {
+        flag = true;
+    }
+}, 500);
+let time;
 setInterval(function() {
 
-    let ball = new box(Math.floor(Math.random() * 1200), 0, function(ctx, x, y, key) {
+    document.getElementById("fps").textContent = 1000 / (new Date().getTime() - time);
+    /*
+        let ball = new box(Math.floor(Math.random() * 1200), 0, function(ctx, x, y, key) {
 
-        let cy = this.xy.y;
-        let cx = this.xy.x;
-        this.xy.y += 3;
-        if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x)
-            delete view.ball.splice(key, 1);
-        let view_x = this.xy.x - cam.xy.x;
-        let view_y = this.xy.y - cam.xy.y;
-        if (view_x + this.size.x < 0 || view_x > canvas.width || view_y + this.size.y < 0 || view_y > canvas.height)
-            return;
-        ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), this.size.x, this.size.y);
-    });
-    ball.size = new xy(10, 10)
-    view.ball.push(ball);
-
+            let cy = this.xy.y;
+            let cx = this.xy.x;
+            this.xy.y += 3;
+            if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x)
+                delete view.ball.splice(key, 1);
+            let view_x = this.xy.x - cam.xy.x;
+            let view_y = this.xy.y - cam.xy.y;
+            if (view_x + this.size.x < 0 || view_x > canvas.width || view_y + this.size.y < 0 || view_y > canvas.height)
+                return;
+            ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), this.size.x, this.size.y);
+        });
+        ball.size = new xy(10, 10)
+        view.ball.push(ball);
+    */
 
     if (new move().cam_up() && new move().cam_left()) {
         cam.xy.y -= config.player.speed[1];
@@ -204,10 +256,11 @@ setInterval(function() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     entity = 0;
     for (let group_key in view) {
-        view[group_key].forEach(function(data) {
+        view[group_key].forEach(function(data, i) {
             entity++;
-            data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, group_key);
+            data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i);
         });
     };
-    console.log(entity);
+    document.getElementById("entity").textContent = entity;
+    time = new Date().getTime();
 }, 30);
