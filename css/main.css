@@ -1,0 +1,36 @@
+html {
+    touch-action: manipulation;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+}
+
+#canvas {
+    max-width: 600px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.item {
+    height: 150px;
+    width: 150px;
+}
+
+.btn {
+    border: solid;
+    border-radius: 8px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.canvas {
+    width: 100vw;
+    min-width: 600px;
+}

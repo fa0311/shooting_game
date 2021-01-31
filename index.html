@@ -3,11 +3,34 @@
 
 <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="css/main.css?var=20210129">
+    <meta name="viewport" content="width=360,initial-scale=1">
 </head>
 
 <body>
-    <canvas id="canvas" width="600" height="400"></canvas>
-    <p>WASDで操作</p>
+    <div class="canvas">
+        <div class="column">
+            <div class="row">
+                <canvas id="canvas" width="600" height="400"></canvas>
+            </div>
+        </div>
+        <div class="row">
+            <div class="item"></div>
+            <div class="item btn" id="up_btn">W</div>
+            <div class="item"></div>
+        </div>
+        <div class="row">
+            <div class="item btn" id="left_btn">A</div>
+            <div class="item"></div>
+            <div class="item btn" id="right_btn">D</div>
+        </div>
+        <div class="row">
+            <div class="item"></div>
+            <div class="item btn" id="down_btn">S</div>
+            <div class="item"></div>
+        </div>
+    </div>
+    </div>
     <p>オブジェクト数:<span id="entity"></span></p>
     <p>FPS:<span id="fps"></span></p>
     <p>残機:<span id="remaining"></span></p>
@@ -20,10 +43,12 @@
     <button onclick="shoot_center_circle()">攻撃パターン shoot_circle</button>
     <button onclick="shoot_center_circle_circle()">攻撃パターン shoot_center_circle_circle</button>
     <button onclick="shoot_center_circle_10()">攻撃パターン shoot_center_circle_10</button>
+
 </body>
 <script src="js/module.js?var=20210129" type="text/javascript"></script>
 <script src="js/set.js?var=20210129" type="text/javascript"></script>
 <script src="js/barrage.js?var=20210129" type="text/javascript"></script>
+<script src="js/mobile.js?var=20210129" type="text/javascript"></script>
 <script src="js/main.js?var=20210129" type="text/javascript"></script>
 
 </html>

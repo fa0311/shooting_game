@@ -117,7 +117,16 @@ class player {
                 if (this.chara_img == 9)
                     this.chara_img = 0;
             }
-            ctx.drawImage(this.chara.default[this.chara_img], x - (cx - this.xy.x) - 7.5, y - (cy - this.xy.y) - 7.5, 25, 25);
+            if (cx < this.xy.x) {
+                ctx.save();
+                ctx.scale(-1, 1);
+                ctx.translate(-canvas.width, 0);
+                ctx.drawImage(this.chara.left[this.chara_img], canvas.width - (x - (cx - this.xy.x) + 17.5), y - (cy - this.xy.y) - 7.5, 25, 25);
+                ctx.restore();
+            } else if (cx > this.xy.x)
+                ctx.drawImage(this.chara.left[this.chara_img], x - (cx - this.xy.x) - 7.5, y - (cy - this.xy.y) - 7.5, 25, 25);
+            else
+                ctx.drawImage(this.chara.default[this.chara_img], x - (cx - this.xy.x) - 7.5, y - (cy - this.xy.y) - 7.5, 25, 25);
         })
         this.player.collision = true;
         this.player.remaining = 5;
