@@ -14,16 +14,19 @@ let config = {
     },
     "player": {
         "speed": [1.41421356237 * 3, 1 * 3]
-    }
+    },
+    "debug": false
 }
 
 let cam = new camera();
 let view = {
     "background": [],
+    "barrage": [],
     "player": [],
-    "ball": []
+    "boss": [],
 };
 
+new boss().main_boss().add();
 new player().main_player().add();
 
 /*メインループ開始 */
