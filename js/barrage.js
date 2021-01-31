@@ -45,7 +45,7 @@ function circle_wave() {
             }).add();
 }
 
-function shoot_center_circle() {
+function shoot_circle() {
     let angle = Math.atan2(view.player[0].xy.x - 600, view.player[0].xy.y - 100) * 60 * 0.957;
     new barrage(600, 100, 3, 10, 10).shoot(angle).event_xy(function(that, ctx, x, y, key) {
         view.ball.splice(key, 1);
