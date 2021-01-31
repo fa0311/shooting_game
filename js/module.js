@@ -117,17 +117,24 @@ class player {
                 if (this.chara_img == 9)
                     this.chara_img = 0;
             }
-            ctx.drawImage(this.chara[this.chara_img], x - (cx - this.xy.x) - 7.5, y - (cy - this.xy.y) - 7.5, 25, 25);
+            ctx.drawImage(this.chara.default[this.chara_img], x - (cx - this.xy.x) - 7.5, y - (cy - this.xy.y) - 7.5, 25, 25);
         })
         this.player.collision = true;
         this.player.remaining = 5;
         this.player.hidden = false;
-        this.player.chara = [];
+        this.player.chara = {
+            "default": [],
+            "left": []
+        };
         this.player.frame = 0;
         this.player.chara_img = 0;
-        for (var i = 0; i < 9; i++) {
-            this.player.chara[i] = new Image();
-            this.player.chara[i].src = "./img/player_1/angel" + (i + 1) + ".png";
+        for (let i = 0; i < 9; i++) {
+            this.player.chara["default"][i] = new Image();
+            this.player.chara["default"][i].src = "./img/player_1/angel" + (i + 1) + ".png";
+        }
+        for (let i = 0; i < 9; i++) {
+            this.player.chara["left"][i] = new Image();
+            this.player.chara["left"][i].src = "./img/player_1/angel_left" + (i + 1) + ".png";
         }
         return this;
     }
