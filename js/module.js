@@ -142,14 +142,7 @@ class player {
             "speed": 3
         };
         this.box.chara_img = 0;
-        for (let i = 0; i < 9; i++) {
-            this.box.chara.default[i] = new Image();
-            this.box.chara.default[i].src = "./img/player_1/angel" + (i + 1) + ".png";
-        }
-        for (let i = 0; i < 9; i++) {
-            this.box.chara.left[i] = new Image();
-            this.box.chara.left[i].src = "./img/player_1/angel_left" + (i + 1) + ".png";
-        }
+        this.box.chara = img.player;
         return this;
     }
     add() {
@@ -161,12 +154,11 @@ class boss {
 
     main() {
         this.boss = new box(600, 100, function(ctx, x, y, key) {
-            ctx.drawImage(this.chara.default, x - 50, y - 50, 100, 100);
+            ctx.drawImage(this.chara.default[0], x - 50, y - 50, 100, 100);
         });
         this.boss.chara = {};
 
-        this.boss.chara.default = new Image();
-        this.boss.chara.default.src = "./img/boss.png";
+        this.boss.chara = img.boss;
         this.boss.hp = {
             "residue": 0,
             "max": 0
@@ -190,7 +182,7 @@ class own_barrage {
                 return;
             }
             /*敵接触 */
-            if (view.boss[0].xy.y < this.xy.y + 20 && view.boss[0].xy.x < this.xy.x + 20 && view.boss[0].xy.y > this.xy.y - 20 && view.boss[0].xy.x > this.xy.x - 20) {
+            if (view.boss[0].xy.y < this.xy.y + 10 && view.boss[0].xy.x < this.xy.x + 50 && view.boss[0].xy.y > this.xy.y - 10 && view.boss[0].xy.x > this.xy.x - 50) {
                 view.own_barrage.splice(key, 1);
                 view.boss[0].hp.residue -= view.player[0].attack.damage;
                 return;
@@ -253,15 +245,17 @@ class barrage {
                 view.player[0].collision = false;
                 view.player[0].residue--;
                 if (view.player[0].residue == -1) console.log("ゲームオーバー");
-                for (let i = 0; i < 9; i++) {
-                    setTimeout(function() {
-                        view.player[0].hidden = !view.player[0].hidden;
-                    }, 200 * i);
-                }
-                setTimeout(function() {
+
+                let action = new box(0, 0, function(ctx, x, y, key) {
+                    this.frame++;
+                    if (this.frame % 6 != 1) return;
                     view.player[0].hidden = !view.player[0].hidden;
+                    if (this.frame < 55) return;
                     view.player[0].collision = true;
-                }, 1800);
+                    view.action.splice(key, 1);
+                });
+                action.frame = 0;
+                view.action.push(action);
             }
 
             /*カメラとの相対座標を計算 */
@@ -385,7 +379,7 @@ class view_canvas {
         let that = this;
         for (let group_key in view) {
             view[group_key].forEach(function(data, i) {
-                that.entity++;
+                that.task++;
                 data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i);
             });
         };
@@ -457,15 +451,15 @@ class data {
         this.box = new box(0, 0, function(ctx, x, y, key) {
             this.frame++;
             if (config.debug) {
-                let entity = 0;
+                let task = 0;
                 for (let group_key in view) {
-                    entity += view[group_key].length;
+                    task += view[group_key].length;
                 }
-                ctx.fillText("Entity:" + entity, 0, 15);
+                ctx.fillText("task:" + task, 0, 15);
                 ctx.fillText("FPS:" + Math.floor((1000 / (new Date().getTime() - this.time)) * 1000) / 1000, 0, 30);
                 ctx.fillText("フレーム数:" + this.frame, 0, 45);
                 this.time = new Date().getTime();
-                entity = 0;
+                task = 0;
             }
         })
         this.box.frame = 0;

@@ -1,3 +1,5 @@
+let view;
+let cam;
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 ctx.font = "15px 'ＭＳ ゴシック'";
@@ -17,26 +19,22 @@ let config = {
     },
     "debug": false
 }
-
-let cam = new camera();
-let view = {
-    "grid": [],
-    "barrage": [],
-    "own_barrage": [],
-    "item": [],
-    "player": [],
-    "boss": [],
-    "data": [],
+let img = {
+    "boss": {
+        "default": [],
+    },
+    "player": {
+        "default": [],
+        "left": [],
+    },
 };
-
-new boss().main().add();
-new player().main().add();
-new data().boss_hp().add();
-new data().text().add();
-new data().debug().add();
-
-/*メインループ開始 */
-setTimeout(
-    function() {
-        new view_canvas
-    }, config.view.interval);
+img.boss.default[0] = new Image();
+img.boss.default[0].src = "./img/boss.png";
+for (let i = 0; i < 9; i++) {
+    img.player.default[i] = new Image();
+    img.player.default[i].src = "./img/player_1/angel" + (i + 1) + ".png";
+}
+for (let i = 0; i < 9; i++) {
+    img.player.left[i] = new Image();
+    img.player.left[i].src = "./img/player_1/angel_left" + (i + 1) + ".png";
+}

@@ -1,38 +1,27 @@
-function circle() {
+function circle(x = view.boss[0].xy.x, y = view.boss[0].xy.y) {
     let r = Math.floor(Math.random() * 10);
     for (let i = 0; i < 36; i++)
-        new barrage(view.boss[0].xy.x, view.boss[0].xy.y, 4, 10, 10).shoot(i * 10 + r).add();
-    return
-    let move = [false, 400];
-    setInterval(function() {
-        for (let i = 0; i < 36; i++)
-            new barrage(move[1], 100, 4, 10, 10).shoot(i * 10 + r).add();
-        if (move[0])
-            move[1] = move[1] + 100;
-        else
-            move[1] = move[1] - 100;
-        if (move[1] >= 800)
-            move[0] = false;
-        if (move[1] <= 400)
-            move[0] = true;
-    }, 1000);
+        new barrage(x, y, 4, 10, 10).shoot(i * 10 + r).add();
 }
 
+
 function shoot() {
-    setInterval(function() {
-        let angle = Math.atan2(view.player[0].xy.x - view.boss[0].xy.x, view.player[0].xy.y - view.boss[0].xy.y) * 60 * 0.957;
-        new barrage(view.boss[0].xy.x, view.boss[0].xy.y, 3, 10, 10).shoot(angle).add();
-    }, 500);
+    let angle = Math.atan2(view.player[0].xy.x - view.boss[0].xy.x, view.player[0].xy.y - view.boss[0].xy.y) * 60 * 0.957;
+    new barrage(view.boss[0].xy.x, view.boss[0].xy.y, 3, 10, 10).shoot(angle).add();
 }
 
 function shoot_wave() {
-    setInterval(function() {
-        for (let i = 0; i < 9; i++) {
-            let angle = Math.atan2(view.player[0].xy.x - view.boss[0].xy.x, view.player[0].xy.y - view.boss[0].xy.y) * 60 * 0.957 - 12 + i * 3;
-            new barrage(view.boss[0].xy.x, view.boss[0].xy.y, 3, 10, 10).shoot(angle).add();
-        }
-    }, 2000);
+    for (let i = 0; i < 9; i++) {
+        let angle = Math.atan2(view.player[0].xy.x - view.boss[0].xy.x, view.player[0].xy.y - view.boss[0].xy.y) * 60 * 0.957 - 12 + i * 3;
+        new barrage(view.boss[0].xy.x, view.boss[0].xy.y, 3, 10, 10).shoot(angle).add();
+    }
+}
 
+function easy_shoot_wave() {
+    for (let i = 0; i < 5; i++) {
+        let angle = Math.atan2(view.player[0].xy.x - view.boss[0].xy.x, view.player[0].xy.y - view.boss[0].xy.y) * 60 * 0.957 - 6 + i * 3;
+        new barrage(view.boss[0].xy.x, view.boss[0].xy.y, 3, 10, 10).shoot(angle).add();
+    }
 }
 
 function circle_wave() {
@@ -116,8 +105,3 @@ function zone_limits(x = 300, y = 500) {
         new barrage(config.mapsize.x - x, 800, 1, x, 10).shoot(180).add();
     }, 397);
 }
-
-
-setInterval(function() {
-    new own_barrage().box().add();
-}, 33 * view.player[0].attack.speed);
