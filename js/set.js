@@ -14,20 +14,21 @@ let config = {
     },
     "player": {
         "speed": [1.41421356237 * 3, 1 * 3]
-    },
-    "debug": false
+    }
 }
 
 let cam = new camera();
 let view = {
+    "grid": [],
     "background": [],
     "barrage": [],
+    "own_barrage": [],
     "player": [],
     "boss": [],
 };
 
-new boss().main_boss().add();
-new player().main_player().add();
+new boss().main().add();
+new player().main().add();
 
 /*メインループ開始 */
 setTimeout(new view_canvas, config.view.interval);

@@ -63,8 +63,8 @@ class player {
     constructor() {
 
     }
-    main_player() {
-        this.player = new box(config.mapsize.x / 2, config.mapsize.y / 2, function(ctx, x, y, key) {
+    main() {
+        this.box = new box(config.mapsize.x / 2, config.mapsize.y / 2, function(ctx, x, y, key) {
             let cy = this.xy.y;
             let cx = this.xy.x;
             if (new move().player_up() && new move().player_left()) {
@@ -88,26 +88,26 @@ class player {
             } else if (new move().player_right()) {
                 this.xy.x += config.player.speed[0];
             }
-            let player = this;
+            let box = this;
             view.barrage.forEach(function(data, i) {
                 let x_size = data.config.size.x / 2;
                 let y_size = data.config.size.y / 2;
-                if (player.xy.y + y_size > data.xy.y + y_size && player.xy.y - y_size < data.xy.y + y_size && player.xy.x + x_size > data.xy.x + x_size && player.xy.x - x_size < data.xy.x + x_size && player.collision) {
-                    player.collision = false;
-                    player.remaining--;
-                    if (player.remaining == -1) console.log("ゲームオーバー");
-                    player.hidden = true;
+                if (box.xy.y > data.xy.y - y_size && box.xy.y < data.xy.y + y_size && box.xy.x > data.xy.x - x_size && box.xy.x < data.xy.x + x_size && box.collision) {
+                    box.collision = false;
+                    box.remaining--;
+                    if (box.remaining == -1) console.log("ゲームオーバー");
+                    box.hidden = true;
                     for (let i = 0; i < 5; i++) {
                         setTimeout(function() {
-                            player.hidden = false;
+                            box.hidden = false;
                         }, 400 * i + 200);
                         setTimeout(function() {
-                            player.hidden = true;
+                            box.hidden = true;
                         }, 400 * i + 400);
                     }
                     setTimeout(function() {
-                        player.hidden = false;
-                        player.collision = true;
+                        box.hidden = false;
+                        box.collision = true;
                     }, 2000);
                 }
             });
@@ -124,63 +124,42 @@ class player {
                 ctx.scale(-1, 1);
                 ctx.translate(-canvas.width, 0);
                 ctx.drawImage(this.chara.left[this.chara_img], canvas.width - (x - (cx - this.xy.x) + 16), y - (cy - this.xy.y) - 16);
-                if (config.debug) {
-                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) + 16), y - (cy - this.xy.y), 1, 1);
-                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) + 16), y - (cy - this.xy.y) - 16, 1, 1);
-                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) - 16), y - (cy - this.xy.y) + 16, 1, 1);
-                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) - 16), y - (cy - this.xy.y) - 16, 1, 1);
-                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) + 16), y - (cy - this.xy.y) + 16, 1, 1);
-                }
                 ctx.restore();
             } else if (cx > this.xy.x) {
                 ctx.drawImage(this.chara.left[this.chara_img], x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16);
-                if (config.debug) {
-                    ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 1, 1);
-                    ctx.strokeRect(x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16, 1, 1);
-                    ctx.strokeRect(x - (cx - this.xy.x) + 16, y - (cy - this.xy.y) + 16, 1, 1);
-                    ctx.strokeRect(x - (cx - this.xy.x) + 16, y - (cy - this.xy.y) - 16, 1, 1);
-                    ctx.strokeRect(x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) + 16, 1, 1);
-                }
             } else {
-                ctx.drawImage(this.chara.default[this.chara_img], x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16);
-                if (config.debug) {
-                    ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 1, 1);
-                    ctx.strokeRect(x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16, 1, 1);
-                    ctx.strokeRect(x - (cx - this.xy.x) + 16, y - (cy - this.xy.y) + 16, 1, 1);
-                    ctx.strokeRect(x - (cx - this.xy.x) + 16, y - (cy - this.xy.y) - 16, 1, 1);
-                    ctx.strokeRect(x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) + 16, 1, 1);
-                }
+                ctx.drawImage(this.chara.default[this.chara_img], x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16)
             }
         })
-        this.player.collision = true;
-        this.player.remaining = 5;
-        this.player.hidden = false;
-        this.player.chara = {
+        this.box.collision = true;
+        this.box.remaining = 5;
+        this.box.hidden = false;
+        this.box.chara = {
             "default": [],
             "left": []
         };
-        this.player.frame = 0;
-        this.player.chara_img = 0;
+        this.box.frame = 0;
+        this.box.chara_img = 0;
         for (let i = 0; i < 9; i++) {
-            this.player.chara.default[i] = new Image();
-            this.player.chara.default[i].src = "./img/player_1/angel" + (i + 1) + ".png";
+            this.box.chara.default[i] = new Image();
+            this.box.chara.default[i].src = "./img/player_1/angel" + (i + 1) + ".png";
         }
         for (let i = 0; i < 9; i++) {
-            this.player.chara.left[i] = new Image();
-            this.player.chara.left[i].src = "./img/player_1/angel_left" + (i + 1) + ".png";
+            this.box.chara.left[i] = new Image();
+            this.box.chara.left[i].src = "./img/player_1/angel_left" + (i + 1) + ".png";
         }
         return this;
     }
     add() {
-        view.player.push(this.player);
+        view.player.push(this.box);
     }
 }
 
 class boss {
 
-    main_boss() {
-        this.boss = new box(600 - 50, 100 - 50, function(ctx, x, y, key) {
-            ctx.drawImage(this.chara.default, x, y, 100, 100);
+    main() {
+        this.boss = new box(600, 100, function(ctx, x, y, key) {
+            ctx.drawImage(this.chara.default, x - 50, y - 50, 100, 100);
         });
         this.boss.chara = {};
 
@@ -192,6 +171,126 @@ class boss {
         view.boss.push(this.boss);
     }
 }
+
+class own_barrage {
+    constructor() {}
+    box() {
+        this.box = new box(view.player[0].xy.x, view.player[0].xy.y, function(ctx, x, y, key) {
+            /*移動 */
+            this.xy.y -= 10;
+            /*壁接触 */
+            if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x) {
+                view.own_barrage.splice(key, 1);
+                return;
+            }
+            /*敵接触 */
+            if (view.boss[0].xy.y < this.xy.y + 20 && view.boss[0].xy.x < this.xy.x + 20 && view.boss[0].xy.y > this.xy.y - 20 && view.boss[0].xy.x > this.xy.x - 20) {
+                view.own_barrage.splice(key, 1);
+                return;
+            }
+            /*カメラとの相対座標を計算 */
+            let view_x = this.xy.x - cam.xy.x;
+            let view_y = this.xy.y - cam.xy.y;
+            /*カメラに表示されてないなら */
+            if (view_x + this.config.size.x < 0 || view_x > canvas.width || view_y + this.config.size.y < 0 || view_y > canvas.height)
+                return;
+            /*描画 */
+            ctx.strokeRect(x - 2, y - 10, this.config.size.x, this.config.size.y);
+
+        })
+        this.box.config = {
+            "size": new xy(4, 4)
+        };
+        return this;
+    }
+    add() {
+        view.own_barrage.push(this.box);
+    }
+}
+
+class barrage {
+    constructor(x, y, sp, sx = 10, sy = 10) {
+        this.config = {
+            "size": new xy(sx, sy),
+            "speed": sp
+        };
+        this.xy = new xy(x, y);
+
+    }
+    shoot(angle = 0) {
+        this.box = new box(this.xy.x, this.xy.y, function(ctx, x, y, key) {
+            /*移動した距離 */
+            let cy = Math.cos(this.angle * Math.PI / 180) * this.config.speed;
+            let cx = Math.sin(this.angle * Math.PI / 180) * this.config.speed;
+            /*移動 */
+            this.xy.y += cy;
+            this.xy.x += cx;
+            /*移動 */
+            this.frame++;
+            /*壁接触イベント */
+            if (this.event.wall.run && this.frame > 10)
+                if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x)
+                    if (this.event.wall.fn(this, ctx, x, y, key))
+                        return;
+
+                    /*座標接触イベント */
+            if (this.event.xy.run)
+                if (this.event.xy.xy.y < this.xy.y + 10 && this.event.xy.xy.x < this.xy.x + 10 && this.event.xy.xy.y > this.xy.y - 10 && this.event.xy.xy.x > this.xy.x - 10)
+                    if (this.event.xy.fn(this, ctx, x, y, key))
+                        return;
+
+                    /*カメラとの相対座標を計算 */
+            let view_x = this.xy.x - cam.xy.x;
+            let view_y = this.xy.y - cam.xy.y;
+            /*カメラに表示されてないなら */
+            if (view_x + this.config.size.x < 0 || view_x > canvas.width || view_y + this.config.size.y < 0 || view_y > canvas.height)
+                return;
+            /*描画 */
+            ctx.strokeRect(x + cx - this.config.size.x / 2, y + cy - this.config.size.x / 2, this.config.size.x, this.config.size.y);
+        });
+        this.box.config = this.config;
+        this.box.xy = this.xy;
+        this.box.angle = angle;
+        this.box.frame = 0;
+        this.box.event = {
+            "wall": {
+                "run": true,
+                "fn": function(that, ctx, x, y, key) {
+                    view.barrage.splice(key, 1);
+                    return true;
+                }
+            },
+            "xy": {
+                "run": false,
+            }
+        }
+        return this;
+    }
+
+    event_wall(fn) {
+        this.box.event.wall = {
+            "run": true,
+            "fn": fn
+        }
+        return this;
+    }
+
+    event_xy(fn, x, y) {
+        this.box.event.xy = {
+            "run": true,
+            "xy": new xy(x, y),
+            "fn": fn
+        }
+        return this;
+    }
+
+    add() {
+        view.barrage.push(this.box);
+    }
+}
+
+
+
 class move {
     constructor(player = view.player[0]) {
         this.player = player;
@@ -226,88 +325,6 @@ class move {
         return this.player.xy.y < config.mapsize.y - 10 && keydata.down
     }
 }
-class barrage {
-    constructor(x, y, sp, sx = 10, sy = 10) {
-        this.config = {
-            "size": new xy(sx, sy),
-            "speed": sp
-        };
-        this.xy = new xy(x, y);
-
-    }
-    shoot(angle = 0) {
-        this.barrage = new box(this.xy.x, this.xy.y, function(ctx, x, y, key) {
-            /*移動した距離 */
-            let cy = Math.cos(this.angle * Math.PI / 180) * this.config.speed;
-            let cx = Math.sin(this.angle * Math.PI / 180) * this.config.speed;
-            /*移動 */
-            this.xy.y += cy;
-            this.xy.x += cx;
-            /*移動 */
-            this.frame++;
-            /*壁接触イベント */
-            if (this.event.wall.run && this.frame > 10)
-                if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x)
-                    if (this.event.wall.fn(this, ctx, x, y, key))
-                        return;
-
-                    /*座標接触イベント */
-            if (this.event.xy.run)
-                if (this.event.xy.xy.y < this.xy.y + 10 && this.event.xy.xy.x < this.xy.x + 10 && this.event.xy.xy.y > this.xy.y - 10 && this.event.xy.xy.x > this.xy.x - 10)
-                    if (this.event.xy.fn(this, ctx, x, y, key))
-                        return;
-
-                    /*カメラとの相対座標を計算 */
-            let view_x = this.xy.x - cam.xy.x;
-            let view_y = this.xy.y - cam.xy.y;
-            /*カメラに表示されてないなら */
-            if (view_x + this.config.size.x < 0 || view_x > canvas.width || view_y + this.config.size.y < 0 || view_y > canvas.height)
-                return;
-            /*描画 */
-            ctx.strokeRect(x + cx, y + cy, this.config.size.x, this.config.size.y);
-        });
-        this.barrage.config = this.config;
-        this.barrage.xy = this.xy;
-        this.barrage.angle = angle;
-        this.barrage.frame = 0;
-        this.barrage.event = {
-            "wall": {
-                "run": true,
-                "fn": function(that, ctx, x, y, key) {
-                    view.barrage.splice(key, 1);
-                    return true;
-                }
-            },
-            "xy": {
-                "run": false,
-            }
-        }
-        return this;
-    }
-
-    event_wall(fn) {
-        this.barrage.event.wall = {
-            "run": true,
-            "fn": fn
-        }
-        return this;
-    }
-
-    event_xy(fn, x, y) {
-        this.barrage.event.xy = {
-            "run": true,
-            "xy": new xy(x, y),
-            "fn": fn
-        }
-        return this;
-    }
-
-    add() {
-        view.barrage.push(this.barrage);
-    }
-}
-
-
 class view_canvas {
     constructor() {
         this.time;
@@ -343,12 +360,6 @@ class view_canvas {
         /*すべてを消す */
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        /*デバック情報 */
-        if (config.debug) {
-            ctx.strokeRect(canvas.width / 2 - 0.5, 0, 1, canvas.height);
-            ctx.strokeRect(0, canvas.height / 2 - 0.5, canvas.width, 1);
-        }
-
         /*表示 */
         let that = this;
         for (let group_key in view) {
@@ -366,4 +377,37 @@ class view_canvas {
             that.view();
         }, config.view.interval);
     };
+}
+
+class grid {
+
+    box_x(x) {
+        this.box = new box(x, 0, function(ctx, x, y, key) {
+            ctx.strokeRect(x, y, 1, config.mapsize.y);
+        })
+        return this;
+    }
+    box_y(y) {
+        this.box = new box(0, y, function(ctx, x, y, key) {
+            ctx.strokeRect(x, y, config.mapsize.x, 1);
+        })
+        return this;
+    }
+    add() {
+        view.grid.push(this.box);
+    }
+}
+
+function grid_view() {
+
+    for (let i = 0; i <= config.mapsize.x; i += 100)
+        new grid().box_x(i).add();
+
+    for (let i = 0; i <= config.mapsize.y; i += 100)
+        new grid().box_y(i).add();
+
+    view.grid.push(new box(x, 0, function(ctx, x, y, key) {
+        ctx.strokeRect(canvas.width / 2, 0, 1, canvas.height);
+        ctx.strokeRect(0, canvas.height / 2, canvas.width, 1);
+    }));
 }
