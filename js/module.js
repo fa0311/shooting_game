@@ -94,8 +94,8 @@ class player {
                 let y_size = data.config.size.y / 2;
                 if (box.xy.y > data.xy.y - y_size && box.xy.y < data.xy.y + y_size && box.xy.x > data.xy.x - x_size && box.xy.x < data.xy.x + x_size && box.collision) {
                     box.collision = false;
-                    box.remaining--;
-                    if (box.remaining == -1) console.log("ゲームオーバー");
+                    box.residue--;
+                    if (box.residue == -1) console.log("ゲームオーバー");
                     box.hidden = true;
                     for (let i = 0; i < 5; i++) {
                         setTimeout(function() {
@@ -124,21 +124,46 @@ class player {
                 ctx.scale(-1, 1);
                 ctx.translate(-canvas.width, 0);
                 ctx.drawImage(this.chara.left[this.chara_img], canvas.width - (x - (cx - this.xy.x) + 16), y - (cy - this.xy.y) - 16);
+                if (config.debug) {
+                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) + 16), y - (cy - this.xy.y), 1, 1);
+                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) + 16), y - (cy - this.xy.y) - 16, 1, 1);
+                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) - 16), y - (cy - this.xy.y) + 16, 1, 1);
+                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) - 16), y - (cy - this.xy.y) - 16, 1, 1);
+                    ctx.strokeRect(canvas.width - (x - (cx - this.xy.x) + 16), y - (cy - this.xy.y) + 16, 1, 1);
+                }
                 ctx.restore();
             } else if (cx > this.xy.x) {
                 ctx.drawImage(this.chara.left[this.chara_img], x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16);
+                if (config.debug) {
+                    ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 1, 1);
+                    ctx.strokeRect(x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16, 1, 1);
+                    ctx.strokeRect(x - (cx - this.xy.x) + 16, y - (cy - this.xy.y) + 16, 1, 1);
+                    ctx.strokeRect(x - (cx - this.xy.x) + 16, y - (cy - this.xy.y) - 16, 1, 1);
+                    ctx.strokeRect(x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) + 16, 1, 1);
+                }
             } else {
-                ctx.drawImage(this.chara.default[this.chara_img], x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16)
+                ctx.drawImage(this.chara.default[this.chara_img], x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16);
+                if (config.debug) {
+                    ctx.strokeRect(x - (cx - this.xy.x), y - (cy - this.xy.y), 1, 1);
+                    ctx.strokeRect(x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) - 16, 1, 1);
+                    ctx.strokeRect(x - (cx - this.xy.x) + 16, y - (cy - this.xy.y) + 16, 1, 1);
+                    ctx.strokeRect(x - (cx - this.xy.x) + 16, y - (cy - this.xy.y) - 16, 1, 1);
+                    ctx.strokeRect(x - (cx - this.xy.x) - 16, y - (cy - this.xy.y) + 16, 1, 1);
+                }
             }
         })
         this.box.collision = true;
-        this.box.remaining = 5;
+        this.box.residue = 5;
         this.box.hidden = false;
         this.box.chara = {
             "default": [],
             "left": []
         };
         this.box.frame = 0;
+        this.box.attack = {
+            "damage": 1,
+            "speed": 3
+        };
         this.box.chara_img = 0;
         for (let i = 0; i < 9; i++) {
             this.box.chara.default[i] = new Image();
@@ -165,6 +190,10 @@ class boss {
 
         this.boss.chara.default = new Image();
         this.boss.chara.default.src = "./img/boss.png";
+        this.boss.hp = {
+            "residue": 0,
+            "max": 0
+        }
         return this;
     }
     add() {
@@ -186,6 +215,7 @@ class own_barrage {
             /*敵接触 */
             if (view.boss[0].xy.y < this.xy.y + 20 && view.boss[0].xy.x < this.xy.x + 20 && view.boss[0].xy.y > this.xy.y - 20 && view.boss[0].xy.x > this.xy.x - 20) {
                 view.own_barrage.splice(key, 1);
+                view.boss[0].hp.residue -= view.player[0].attack.damage;
                 return;
             }
             /*カメラとの相対座標を計算 */
@@ -296,19 +326,19 @@ class move {
         this.player = player;
     }
     cam_left() {
-        if (this.player.xy.x + 5 > config.mapsize.x - canvas.width / 2) return false;
+        if (this.player.xy.x > config.mapsize.x - canvas.width / 2) return false;
         return cam.xy.x > 0 && keydata.left
     }
     cam_right() {
-        if (this.player.xy.x - 5 < canvas.width / 2) return false;
+        if (this.player.xy.x < canvas.width / 2) return false;
         return cam.xy.x < config.mapsize.x - canvas.width && keydata.right
     }
     cam_up() {
-        if (this.player.xy.y + 5 > config.mapsize.y - canvas.height / 2) return false;
+        if (this.player.xy.y > config.mapsize.y - canvas.height / 2) return false;
         return cam.xy.y > 0 && keydata.up
     }
     cam_down() {
-        if (this.player.xy.y - 5 < canvas.height / 2) return false;
+        if (this.player.xy.y < canvas.height / 2) return false;
         return cam.xy.y < config.mapsize.y - canvas.height && keydata.down
     }
 
@@ -334,7 +364,6 @@ class view_canvas {
     view() {
         /*デバック情報リセット */
         this.entity = 0;
-        document.getElementById("fps").textContent = 1000 / (new Date().getTime() - this.time);
         /*カメラ移動 */
         if (new move().cam_up() && new move().cam_left()) {
             cam.xy.y -= config.player.speed[1];
@@ -369,8 +398,13 @@ class view_canvas {
             });
         };
         /*デバック情報表示 */
-        document.getElementById("entity").textContent = this.entity;
-        document.getElementById("remaining").textContent = view.player[0].remaining;
+
+        if (config.debug) {
+            ctx.fillText("Entity/" + this.entity, 0, 15);
+            ctx.fillText("FPS/" + (1000 / (new Date().getTime() - this.time)), 0, 30);
+            ctx.fillText("残機/" + view.player[0].residue, 0, 45);
+        }
+
         this.time = new Date().getTime();
         /*ループ */
         setTimeout(function() {
@@ -383,18 +417,49 @@ class grid {
 
     box_x(x) {
         this.box = new box(x, 0, function(ctx, x, y, key) {
-            ctx.strokeRect(x, y, 1, config.mapsize.y);
+            ctx.strokeRect(x, y, 0.5, config.mapsize.y);
         })
         return this;
     }
     box_y(y) {
         this.box = new box(0, y, function(ctx, x, y, key) {
-            ctx.strokeRect(x, y, config.mapsize.x, 1);
+            ctx.strokeRect(x, y, config.mapsize.x, 0.5);
         })
         return this;
     }
     add() {
         view.grid.push(this.box);
+    }
+}
+
+class data {
+    boss_hp() {
+        this.box = new box(0, 0, function(ctx, x, y, key) {
+            let size = canvas.width / 7;
+            ctx.save();
+
+            ctx.fillStyle = "rgb(255, 255, 255)";
+            ctx.fillRect(size, 17, size * 5, 10);
+
+            ctx.strokeStyle = "rgb(0, 0, 0)";
+            ctx.strokeRect(size, 17, size * 5, 10);
+
+            let grad = ctx.createLinearGradient(0, 17, 0, 27);
+            grad.addColorStop(0, "rgb(170, 0, 0)");
+            grad.addColorStop(0.5, "rgb(255, 0, 0)");
+            grad.addColorStop(1, "rgb(255, 150, 150)");
+            ctx.fillStyle = grad;
+            ctx.fillRect(size, 17, size * 5 * view.boss[0].hp.residue / view.boss[0].hp.max, 10);
+
+            ctx.fillStyle = "rgb(0, 0, 0)";
+
+            ctx.fillText("BOSS:" + view.boss[0].hp.residue, size + 10, 15);
+            ctx.restore();
+        })
+        return this;
+    }
+    add() {
+        view.data.push(this.box);
     }
 }
 
@@ -406,8 +471,12 @@ function grid_view() {
     for (let i = 0; i <= config.mapsize.y; i += 100)
         new grid().box_y(i).add();
 
-    view.grid.push(new box(x, 0, function(ctx, x, y, key) {
-        ctx.strokeRect(canvas.width / 2, 0, 1, canvas.height);
-        ctx.strokeRect(0, canvas.height / 2, canvas.width, 1);
+    view.grid.push(new box(0, 0, function(ctx, x, y, key) {
+        ctx.save();
+        ctx.strokeStyle = "rgb(255, 0, 0)";
+        ctx.strokeRect(canvas.width / 2, 0, 0.5, canvas.height);
+        ctx.strokeStyle = "rgb(0, 0, 255)";
+        ctx.strokeRect(0, canvas.height / 2, canvas.width, 0.5);
+        ctx.restore();
     }));
 }

@@ -1,13 +1,3 @@
-function own_barrage_loop() {
-    setInterval(function() {
-        new own_barrage().box().add();
-    }, 33 * 3);
-}
-
-
-
-
-
 function circle() {
     let r = Math.floor(Math.random() * 10);
     for (let i = 0; i < 36; i++)
@@ -126,3 +116,8 @@ function zone_limits(x = 300, y = 500) {
         new barrage(config.mapsize.x - x, 800, 1, x, 10).shoot(180).add();
     }, 397);
 }
+
+
+setInterval(function() {
+    new own_barrage().box().add();
+}, 33 * view.player[0].attack.speed);

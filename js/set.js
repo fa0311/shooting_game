@@ -1,6 +1,6 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-
+ctx.font = "15px 'ＭＳ ゴシック'";
 
 addEventListener("keydown", keydownfunc);
 addEventListener("keyup", keyupfunc);
@@ -14,21 +14,26 @@ let config = {
     },
     "player": {
         "speed": [1.41421356237 * 3, 1 * 3]
-    }
+    },
+    "debug": false
 }
 
 let cam = new camera();
 let view = {
     "grid": [],
-    "background": [],
     "barrage": [],
     "own_barrage": [],
     "player": [],
     "boss": [],
+    "data": [],
 };
 
 new boss().main().add();
 new player().main().add();
+new data().boss_hp().add();
 
 /*メインループ開始 */
-setTimeout(new view_canvas, config.view.interval);
+setTimeout(
+    function() {
+        new view_canvas
+    }, config.view.interval);
