@@ -88,29 +88,6 @@ class player {
             } else if (new move().player_right()) {
                 this.xy.x += config.player.speed[0];
             }
-            let box = this;
-            view.barrage.forEach(function(data, i) {
-                let x_size = data.config.size.x / 2;
-                let y_size = data.config.size.y / 2;
-                if (box.xy.y > data.xy.y - y_size && box.xy.y < data.xy.y + y_size && box.xy.x > data.xy.x - x_size && box.xy.x < data.xy.x + x_size && box.collision) {
-                    box.collision = false;
-                    box.residue--;
-                    if (box.residue == -1) console.log("ゲームオーバー");
-                    box.hidden = true;
-                    for (let i = 0; i < 5; i++) {
-                        setTimeout(function() {
-                            box.hidden = false;
-                        }, 400 * i + 200);
-                        setTimeout(function() {
-                            box.hidden = true;
-                        }, 400 * i + 400);
-                    }
-                    setTimeout(function() {
-                        box.hidden = false;
-                        box.collision = true;
-                    }, 2000);
-                }
-            });
             if (this.hidden) return;
 
             this.frame++;
@@ -269,7 +246,25 @@ class barrage {
                     if (this.event.xy.fn(this, ctx, x, y, key))
                         return;
 
-                    /*カメラとの相対座標を計算 */
+                    /*プレイヤー接触 */
+            let x_size = this.config.size.x / 2;
+            let y_size = this.config.size.y / 2;
+            if (view.player[0].xy.y > this.xy.y - y_size && view.player[0].xy.y < this.xy.y + y_size && view.player[0].xy.x > this.xy.x - x_size && view.player[0].xy.x < this.xy.x + x_size && view.player[0].collision) {
+                view.player[0].collision = false;
+                view.player[0].residue--;
+                if (view.player[0].residue == -1) console.log("ゲームオーバー");
+                for (let i = 0; i < 9; i++) {
+                    setTimeout(function() {
+                        view.player[0].hidden = !view.player[0].hidden;
+                    }, 200 * i);
+                }
+                setTimeout(function() {
+                    view.player[0].hidden = !view.player[0].hidden;
+                    view.player[0].collision = true;
+                }, 1800);
+            }
+
+            /*カメラとの相対座標を計算 */
             let view_x = this.xy.x - cam.xy.x;
             let view_y = this.xy.y - cam.xy.y;
             /*カメラに表示されてないなら */
@@ -357,13 +352,10 @@ class move {
 }
 class view_canvas {
     constructor() {
-        this.time;
         this.view();
     }
 
     view() {
-        /*デバック情報リセット */
-        this.entity = 0;
         /*カメラ移動 */
         if (new move().cam_up() && new move().cam_left()) {
             cam.xy.y -= config.player.speed[1];
@@ -397,15 +389,7 @@ class view_canvas {
                 data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i);
             });
         };
-        /*デバック情報表示 */
 
-        if (config.debug) {
-            ctx.fillText("Entity/" + this.entity, 0, 15);
-            ctx.fillText("FPS/" + (1000 / (new Date().getTime() - this.time)), 0, 30);
-            ctx.fillText("残機/" + view.player[0].residue, 0, 45);
-        }
-
-        this.time = new Date().getTime();
         /*ループ */
         setTimeout(function() {
             that.view();
@@ -458,8 +442,113 @@ class data {
         })
         return this;
     }
+    text() {
+        this.box = new box(0, 0, function(ctx, x, y, key) {
+            ctx.fillText("残機:" + view.player[0].residue, 0, canvas.height - 50);
+            ctx.fillText("攻撃力:" + view.player[0].attack.damage, 0, canvas.height - 35);
+            ctx.fillText("ステージ:" + this.stage, 0, canvas.height - 20);
+            ctx.fillText("タイム:" + this.time.general_purpose(), 0, canvas.height - 5);
+        })
+        this.box.stage = 0;
+        this.box.time = new time();
+        return this;
+    }
+    debug() {
+        this.box = new box(0, 0, function(ctx, x, y, key) {
+            this.frame++;
+            if (config.debug) {
+                let entity = 0;
+                for (let group_key in view) {
+                    entity += view[group_key].length;
+                }
+                ctx.fillText("Entity:" + entity, 0, 15);
+                ctx.fillText("FPS:" + Math.floor((1000 / (new Date().getTime() - this.time)) * 1000) / 1000, 0, 30);
+                ctx.fillText("フレーム数:" + this.frame, 0, 45);
+                this.time = new Date().getTime();
+                entity = 0;
+            }
+        })
+        this.box.frame = 0;
+        return this;
+    }
     add() {
         view.data.push(this.box);
+    }
+}
+class time {
+    constructor() {
+        this.start = performance.now();
+    }
+    get() {
+        return performance.now() - this.start;
+    }
+    general_purpose(time = this.get()) {
+        let h = Math.floor(time / 1000 / 60 / 60);
+        let min = Math.floor(time / 1000 / 60) - Math.floor(time / 1000 / 60 / 60) * 60;
+        let sec = Math.floor(time / 1000) - Math.floor(time / 1000 / 60) * 60;
+        let ms = Math.floor(time) - Math.floor(time / 1000) * 1000;
+        return h + ":" + min + ":" + sec + ":" + ms;
+    }
+}
+class item {
+    constructor(sx = 10, sy = 10) {
+        this.config = {
+            "size": new xy(sx, sy)
+        };
+        this.x = Math.floor(Math.random() * config.mapsize.x);
+        this.y = Math.floor(Math.random() * config.mapsize.y);
+    }
+    damage() {
+        this.box = new box(this.x, this.y, function(ctx, x, y, key) {
+            this.frame++;
+
+            let x_size = this.config.size.x / 2 + 5;
+            let y_size = this.config.size.y / 2 + 5;
+            if (view.player[0].xy.y > this.xy.y - y_size && view.player[0].xy.y < this.xy.y + y_size && view.player[0].xy.x > this.xy.x - x_size && view.player[0].xy.x < this.xy.x + x_size) {
+                view.player[0].attack.damage++;
+                let text = new box(0, 0, function(ctx, x, y, key) {
+                    this.frame++;
+                    if (this.frame > 60)
+                        view.item.splice(key, 1);
+                    ctx.save();
+                    ctx.strokeStyle = "rgb(100, 100, 255)";
+                    let easing = 10;
+                    if (this.frame <= 30)
+                        easing = (this.frame - 30) * (this.frame - 30) * -0.02 + 10;
+                    ctx.fillText("攻撃力up", view.player[0].xy.x - cam.xy.x + 15, view.player[0].xy.y - cam.xy.y - easing);
+                    ctx.restore();
+                });
+                text.frame = 0;
+                view.item.push(text);
+                view.item.splice(key, 1);
+                return;
+            }
+
+            if (this.frame > 600) {
+                if (this.frame % 6 == 0)
+                    this.hidden = !this.hidden;
+
+                if (this.frame > 659)
+                    view.item.splice(key, 1);
+            }
+
+            if (this.hidden)
+                return;
+            ctx.save();
+            ctx.strokeStyle = "rgb(100, 100, 255)";
+            ctx.strokeRect(x - 5, y - 5, this.config.size.x, this.config.size.y);
+            ctx.restore();
+
+        });
+        this.box.config = this.config;
+        this.box.frame = 0;
+        this.box.hidden = false;
+        this.box.collision = true;
+        return this;
+    }
+
+    add() {
+        view.item.push(this.box);
     }
 }
 

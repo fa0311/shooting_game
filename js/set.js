@@ -23,6 +23,7 @@ let view = {
     "grid": [],
     "barrage": [],
     "own_barrage": [],
+    "item": [],
     "player": [],
     "boss": [],
     "data": [],
@@ -31,6 +32,8 @@ let view = {
 new boss().main().add();
 new player().main().add();
 new data().boss_hp().add();
+new data().text().add();
+new data().debug().add();
 
 /*メインループ開始 */
 setTimeout(
