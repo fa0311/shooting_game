@@ -15,6 +15,7 @@ class xy {
 class camera {
     constructor() {
         this.xy = new xy((config.mapsize.x - canvas.width) / 2, (config.mapsize.y - canvas.height) / 2);
+        this.view = true;
     }
 }
 class box {
@@ -154,10 +155,15 @@ class boss {
 
     main() {
         this.boss = new box(600, 100, function(ctx, x, y, key) {
+            this.frame++;
+            ctx.save();
+            if (this.frame < 50)
+                ctx.globalAlpha = this.frame / 50;
             ctx.drawImage(this.chara.default[0], x - 50, y - 50, 100, 100);
+            ctx.restore();
         });
         this.boss.chara = {};
-
+        this.boss.frame = 0;
         this.boss.chara = img.boss;
         this.boss.hp = {
             "residue": 0,
@@ -244,7 +250,23 @@ class barrage {
             if (view.player[0].xy.y > this.xy.y - y_size && view.player[0].xy.y < this.xy.y + y_size && view.player[0].xy.x > this.xy.x - x_size && view.player[0].xy.x < this.xy.x + x_size && view.player[0].collision) {
                 view.player[0].collision = false;
                 view.player[0].residue--;
-                if (view.player[0].residue == -1) console.log("ゲームオーバー");
+                if (view.player[0].residue == -1) {
+                    effect_circle(view.player[0].xy.x, view.player[0].xy.y);
+                    view.player[0].hidden = true;
+                    view.loop = [];
+                    view.action = [];
+                    view.action = [];
+                    cam.view = false;
+                    let data = [view.player[0].residue, view.player[0].attack.damage, stage, view.data[0].time.general_purpose()]
+                    view.data[0] = new box(0, 0, function(ctx, x, y, key) {
+                        ctx.fillText("残機:" + this.data[0], 0, canvas.height - 50);
+                        ctx.fillText("攻撃力:" + this.data[1], 0, canvas.height - 35);
+                        ctx.fillText("ステージ:" + this.data[2], 0, canvas.height - 20);
+                        ctx.fillText("タイム:" + this.data[3], 0, canvas.height - 5);
+                    });
+                    view.data[0].data = data;
+                    return true;
+                };
 
                 let action = new box(0, 0, function(ctx, x, y, key) {
                     this.frame++;
@@ -286,6 +308,37 @@ class barrage {
         return this;
     }
 
+    effect(angle = 0, effect_time = 40) {
+        this.box = new box(this.xy.x, this.xy.y, function(ctx, x, y, key) {
+            /*移動した距離 */
+            let cy = Math.cos(this.angle * Math.PI / 180) * this.config.speed;
+            let cx = Math.sin(this.angle * Math.PI / 180) * this.config.speed;
+            /*移動 */
+            this.xy.y += cy;
+            this.xy.x += cx;
+            /*移動 */
+            this.frame++;
+
+            /*カメラとの相対座標を計算 */
+            let view_x = this.xy.x - cam.xy.x;
+            let view_y = this.xy.y - cam.xy.y;
+            /*カメラに表示されてないなら */
+            if (view_x + this.config.size.x < 0 || view_x > canvas.width || view_y + this.config.size.y < 0 || view_y > canvas.height)
+                return;
+            /*描画 */
+            ctx.save();
+            ctx.strokeStyle = "rgb(0, 0, 0, " + (1 - this.frame / this.effect_time) + ")";
+            ctx.strokeRect(x + cx - this.config.size.x / 2, y + cy - this.config.size.x / 2, this.config.size.x, this.config.size.y);
+            ctx.restore();
+        });
+        this.box.config = this.config;
+        this.box.effect_time = effect_time;
+        this.box.angle = angle;
+        this.box.frame = 0;
+        this.box.s = this.s;
+        return this;
+    }
+
     event_wall(fn) {
         this.box.event.wall = {
             "run": true,
@@ -305,6 +358,9 @@ class barrage {
 
     add() {
         view.barrage.push(this.box);
+    }
+    add_effect() {
+        view.effect.push(this.box);
     }
 }
 
@@ -351,36 +407,42 @@ class view_canvas {
 
     view() {
         /*カメラ移動 */
-        if (new move().cam_up() && new move().cam_left()) {
-            cam.xy.y -= config.player.speed[1];
-            cam.xy.x -= config.player.speed[1];
-        } else if (new move().cam_left() && new move().cam_down()) {
-            cam.xy.y += config.player.speed[1];
-            cam.xy.x -= config.player.speed[1];
-        } else if (new move().cam_down() && new move().cam_right()) {
-            cam.xy.y += config.player.speed[1];
-            cam.xy.x += config.player.speed[1];
-        } else if (new move().cam_right() && new move().cam_up()) {
-            cam.xy.y -= config.player.speed[1];
-            cam.xy.x += config.player.speed[1];
-        } else if (new move().cam_up()) {
-            cam.xy.y -= config.player.speed[0];
-        } else if (new move().cam_left()) {
-            cam.xy.x -= config.player.speed[0];
-        } else if (new move().cam_down()) {
-            cam.xy.y += config.player.speed[0];
-        } else if (new move().cam_right()) {
-            cam.xy.x += config.player.speed[0];
+        if (cam.view) {
+            if (new move().cam_up() && new move().cam_left()) {
+                cam.xy.y -= config.player.speed[1];
+                cam.xy.x -= config.player.speed[1];
+            } else if (new move().cam_left() && new move().cam_down()) {
+                cam.xy.y += config.player.speed[1];
+                cam.xy.x -= config.player.speed[1];
+            } else if (new move().cam_down() && new move().cam_right()) {
+                cam.xy.y += config.player.speed[1];
+                cam.xy.x += config.player.speed[1];
+            } else if (new move().cam_right() && new move().cam_up()) {
+                cam.xy.y -= config.player.speed[1];
+                cam.xy.x += config.player.speed[1];
+            } else if (new move().cam_up()) {
+                cam.xy.y -= config.player.speed[0];
+            } else if (new move().cam_left()) {
+                cam.xy.x -= config.player.speed[0];
+            } else if (new move().cam_down()) {
+                cam.xy.y += config.player.speed[0];
+            } else if (new move().cam_right()) {
+                cam.xy.x += config.player.speed[0];
+            }
         }
         /*すべてを消す */
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         /*表示 */
         let that = this;
+        let r = false;
         for (let group_key in view) {
-            view[group_key].forEach(function(data, i) {
+            if (view[group_key] == undefined)
+                continue;
+            view[group_key].some(function(data, i) {
                 that.task++;
-                data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i);
+                r = data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i);
+                return r;
             });
         };
 
@@ -440,7 +502,7 @@ class data {
         this.box = new box(0, 0, function(ctx, x, y, key) {
             ctx.fillText("残機:" + view.player[0].residue, 0, canvas.height - 50);
             ctx.fillText("攻撃力:" + view.player[0].attack.damage, 0, canvas.height - 35);
-            ctx.fillText("ステージ:" + this.stage, 0, canvas.height - 20);
+            ctx.fillText("ステージ:" + stage, 0, canvas.height - 20);
             ctx.fillText("タイム:" + this.time.general_purpose(), 0, canvas.height - 5);
         })
         this.box.stage = 0;
@@ -509,7 +571,7 @@ class item {
                     let easing = 10;
                     if (this.frame <= 30)
                         easing = (this.frame - 30) * (this.frame - 30) * -0.02 + 10;
-                    ctx.fillText("攻撃力up", view.player[0].xy.x - cam.xy.x + 15, view.player[0].xy.y - cam.xy.y - easing);
+                    ctx.fillText("攻撃力+1", view.player[0].xy.x - cam.xy.x + 15, view.player[0].xy.y - cam.xy.y - easing);
                     ctx.restore();
                 });
                 text.frame = 0;
@@ -517,15 +579,12 @@ class item {
                 view.item.splice(key, 1);
                 return;
             }
-
             if (this.frame > 600) {
                 if (this.frame % 6 == 0)
                     this.hidden = !this.hidden;
-
                 if (this.frame > 659)
                     view.item.splice(key, 1);
             }
-
             if (this.hidden)
                 return;
             ctx.save();
@@ -540,6 +599,52 @@ class item {
         this.box.collision = true;
         return this;
     }
+    heart() {
+        this.box = new box(this.x, this.y, function(ctx, x, y, key) {
+            this.frame++;
+
+            let x_size = this.config.size.x / 2 + 5;
+            let y_size = this.config.size.y / 2 + 5;
+            if (view.player[0].xy.y > this.xy.y - y_size && view.player[0].xy.y < this.xy.y + y_size && view.player[0].xy.x > this.xy.x - x_size && view.player[0].xy.x < this.xy.x + x_size) {
+                view.player[0].residue++;
+                let text = new box(0, 0, function(ctx, x, y, key) {
+                    this.frame++;
+                    if (this.frame > 60)
+                        view.item.splice(key, 1);
+                    ctx.save();
+                    ctx.strokeStyle = "rgb(255, 100, 100)";
+                    let easing = 10;
+                    if (this.frame <= 30)
+                        easing = (this.frame - 30) * (this.frame - 30) * -0.02 + 10;
+                    ctx.fillText("残機+1", view.player[0].xy.x - cam.xy.x + 15, view.player[0].xy.y - cam.xy.y - easing);
+                    ctx.restore();
+                });
+                text.frame = 0;
+                view.item.push(text);
+                view.item.splice(key, 1);
+                return;
+            }
+            if (this.frame > 600) {
+                if (this.frame % 6 == 0)
+                    this.hidden = !this.hidden;
+                if (this.frame > 659)
+                    view.item.splice(key, 1);
+            }
+            if (this.hidden)
+                return;
+            ctx.save();
+            ctx.strokeStyle = "rgb(255, 100, 155)";
+            ctx.strokeRect(x - 5, y - 5, this.config.size.x, this.config.size.y);
+            ctx.restore();
+
+        });
+        this.box.config = this.config;
+        this.box.frame = 0;
+        this.box.hidden = false;
+        this.box.collision = true;
+        return this;
+    }
+
 
     add() {
         view.item.push(this.box);

@@ -1,17 +1,20 @@
 let loop;
 let stage = 0;
+let mode = "arcade";
 
 function loopset() {
     loop = new box(0, 0, function(ctx, x, y, key) {
         this.frame++;
-        if (this.frame % 90 > 0) return;
-        new item().damage().add()
+        if (this.frame % 120 == 0)
+            new item().damage().add()
+        if (this.frame % 1200 == 0)
+            new item().heart().add()
     });
     loop.frame = 0;
     view.loop.push(loop);
     loop = new box(0, 0, function(ctx, x, y, key) {
         if (view.boss[0].hp.residue <= 0)
-            reset();
+            reset(mode);
 
     });
     view.loop.push(loop);
@@ -24,8 +27,8 @@ function loopset() {
     view.loop.push(loop);
 }
 
-function reset(flag = false) {
-    if (flag) {
+function reset(mode = false) {
+    if (mode == true) {
         view = {
             "grid": [],
             "barrage": [],
@@ -35,12 +38,25 @@ function reset(flag = false) {
             "boss": [],
             "data": [],
             "action": [],
-            "loop": []
+            "loop": [],
+            "effect": [],
         };
         new data().text().add();
         new data().debug().add();
         new data().boss_hp().add();
+        new boss().main().add();
+        new player().main().add();
+        cam = new camera();
+        loopset()
+    } else if (mode == "arcade") {
+        effect_small_circle(view.boss[0].xy.x, view.boss[0].xy.y);
+        view.boss = [];
+        view.action = [];
+        new boss().main().add();
+        view.player[0].hidden = false;
+        view.player[0].collision = true;
     } else {
+        effect_small_circle(view.boss[0].xy.x, view.boss[0].xy.y);
         view = {
             "grid": view.grid,
             "barrage": [],
@@ -50,13 +66,14 @@ function reset(flag = false) {
             "boss": [],
             "data": view.data,
             "action": [],
-            "loop": []
+            "loop": [],
+            "effect": view.effect,
         };
+        new boss().main().add();
+        new player().main().add();
+        cam = new camera();
+        loopset()
     }
-    new boss().main().add();
-    new player().main().add();
-    cam = new camera();
-    loopset()
     stage_list[stage]();
     stage++;
 }
@@ -79,8 +96,8 @@ let stage_list = [
         function() {
             let action;
             view.boss[0].hp = {
-                "residue": 500,
-                "max": 500
+                "residue": 1000,
+                "max": 1000
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;
@@ -102,8 +119,8 @@ let stage_list = [
         function() {
             let action;
             view.boss[0].hp = {
-                "residue": 500,
-                "max": 500
+                "residue": 2000,
+                "max": 2000
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;

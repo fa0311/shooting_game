@@ -4,6 +4,19 @@ function circle(x = view.boss[0].xy.x, y = view.boss[0].xy.y) {
         new barrage(x, y, 4, 10, 10).shoot(i * 10 + r).add();
 }
 
+function effect_small_circle(x = view.boss[0].xy.x, y = view.boss[0].xy.y) {
+    let r = Math.floor(Math.random() * 10);
+    for (let i = 0; i < 36; i++)
+        new barrage(x, y, 4, 4, 4).effect(i * 10 + r, 20).add_effect();
+}
+
+function effect_circle(x = view.boss[0].xy.x, y = view.boss[0].xy.y) {
+    let r = Math.floor(Math.random() * 10);
+    for (let i = 0; i < 36; i++)
+        new barrage(x, y, 4, 4, 4).effect(i * 10 + r, 40).add_effect();
+}
+
+
 
 function shoot() {
     let angle = Math.atan2(view.player[0].xy.x - view.boss[0].xy.x, view.player[0].xy.y - view.boss[0].xy.y) * 60 * 0.957;

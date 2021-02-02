@@ -3,6 +3,7 @@ let cam;
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 ctx.font = "15px 'ＭＳ ゴシック'";
+ctx.save();
 
 addEventListener("keydown", keydownfunc);
 addEventListener("keyup", keyupfunc);
