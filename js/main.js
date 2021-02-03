@@ -1,6 +1,5 @@
 let loop;
 let stage = 0;
-let mode = "arcade";
 
 function loopset() {
     loop = new box(0, 0, function(ctx, x, y, key) {
@@ -14,7 +13,7 @@ function loopset() {
     view.loop.push(loop);
     loop = new box(0, 0, function(ctx, x, y, key) {
         if (view.boss[0].hp.residue <= 0)
-            reset(mode);
+            reset();
 
     });
     view.loop.push(loop);
@@ -29,6 +28,7 @@ function loopset() {
 
 function reset(mode = false) {
     if (mode == true) {
+        /*初回 */
         view = {
             "grid": [],
             "barrage": [],
@@ -48,32 +48,80 @@ function reset(mode = false) {
         new player().main().add();
         cam = new camera();
         loopset()
-    } else if (mode == "arcade") {
+    } else if (mode == false) {
+        /*次のステージ */
+        view.player[0].data_save = {
+            "attack": {
+                "damage": view.player[0].attack.damage,
+                "speed": 3
+            },
+            "residue": view.player[0].residue
+        };
         effect_small_circle(view.boss[0].xy.x, view.boss[0].xy.y);
         view.boss = [];
         view.action = [];
         new boss().main().add();
         view.player[0].hidden = false;
         view.player[0].collision = true;
-    } else {
-        effect_small_circle(view.boss[0].xy.x, view.boss[0].xy.y);
+    } else if (mode == "die") {
+        /*死 */
+        let damage = view.player[0].data_save.attack.damage;
+        let residue = view.player[0].data_save.residue;
+        let time = view.data[0].time.start;
+        let frame = view.data[1].frame
         view = {
-            "grid": view.grid,
+            "grid": [],
             "barrage": [],
             "own_barrage": [],
             "item": [],
             "player": [],
             "boss": [],
-            "data": view.data,
+            "data": [],
             "action": [],
             "loop": [],
-            "effect": view.effect,
+            "effect": [],
         };
+
+        new data().text().add();
+        new data().debug().add();
+        new data().boss_hp().add();
+
         new boss().main().add();
         new player().main().add();
+
+        view.player[0].attack.damage = damage;
+        view.player[0].residue = residue;
+        view.player[0].data_save = {
+            "attack": {
+                "damage": damage,
+                "speed": 3
+            },
+            "residue": residue
+        };
+        view.data[0].time.start = time;
+        view.data[1].frame = frame;
         cam = new camera();
         loopset()
     }
+    /*
+    effect_small_circle(view.boss[0].xy.x, view.boss[0].xy.y);
+    view = {
+        "grid": view.grid,
+        "barrage": [],
+        "own_barrage": [],
+        "item": [],
+        "player": [],
+        "boss": [],
+        "data": view.data,
+        "action": [],
+        "loop": [],
+        "effect": view.effect,
+    };
+    new boss().main().add();
+    new player().main().add();
+    cam = new camera();
+    loopset()
+*/
     stage_list[stage]();
     stage++;
 }
@@ -130,7 +178,23 @@ let stage_list = [
             action.frame = 0;
             view.action.push(action);
         },
-
+        function() {
+            let action;
+            view.boss[0].hp = {
+                "residue": 3000,
+                "max": 3000
+            };
+            action = new box(0, 0, function(ctx, x, y, key) {
+                this.frame++;
+                if (this.frame % 10 > 0) return;
+                zone_limits();
+                if (this.frame % 40 > 0) return;
+                shoot_wave()
+            });
+            action.frame = 0;
+            action.move = [true, 400];
+            view.action.push(action);
+        }
 
     ]
     /*初期化 */
@@ -138,5 +202,5 @@ reset(true);
 /*メインループ開始 */
 setTimeout(
     function() {
-        new view_canvas
+        new view_canvas();
     }, config.view.interval);

@@ -105,16 +105,19 @@ function shoot_center_circle_10() {
 }
 
 function zone_limits(x = 300, y = 500) {
-    let timer_i = 0;
-    let timer_id = setInterval(function() {
-        timer_i++;
-        if (timer_i == 100)
-            clearInterval(timer_id);
-        new barrage(x, 800, 1, config.mapsize.x - x * 2, 10).shoot(180).event_xy(function(that, ctx, x, y, key) {
-            view.barrage.splice(key, 1);
-            return true;
-        }, x, y).add();
-        new barrage(0, 800, 1, x, 10).shoot(180).add();
-        new barrage(config.mapsize.x - x, 800, 1, x, 10).shoot(180).add();
-    }, 397);
+    new barrage(config.mapsize.x / 2, config.mapsize.y, 2, config.mapsize.x - x * 2, 10).shoot(180).event_xy(function(that, ctx, x, y, key) {
+        view.barrage.splice(key, 1);
+        return true;
+    }, config.mapsize.x / 2, y).event_stage(function(that, ctx, x, y, key) {
+        view.barrage.splice(key, 1);
+        return true;
+    }, stage + 1).add();
+    new barrage(x / 2, config.mapsize.y, 2, x, 10).shoot(180).event_stage(function(that, ctx, x, y, key) {
+        view.barrage.splice(key, 1);
+        return true;
+    }, stage + 1).add();
+    new barrage(config.mapsize.x - x / 2, config.mapsize.y, 2, x, 10).shoot(180).event_stage(function(that, ctx, x, y, key) {
+        view.barrage.splice(key, 1);
+        return true;
+    }, stage + 1).add();
 }

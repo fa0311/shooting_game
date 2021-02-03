@@ -130,6 +130,13 @@ class player {
                 }
             }
         })
+        this.box.data_save = {
+            "attack": {
+                "damage": 1,
+                "speed": 3
+            },
+            "residue": 5
+        };
         this.box.collision = true;
         this.box.residue = 5;
         this.box.hidden = false;
@@ -191,6 +198,8 @@ class own_barrage {
             if (view.boss[0].xy.y < this.xy.y + 10 && view.boss[0].xy.x < this.xy.x + 50 && view.boss[0].xy.y > this.xy.y - 10 && view.boss[0].xy.x > this.xy.x - 50) {
                 view.own_barrage.splice(key, 1);
                 view.boss[0].hp.residue -= view.player[0].attack.damage;
+                if (view.boss[0].hp.residue < 0)
+                    view.boss[0].hp.residue = 0;
                 return;
             }
             /*カメラとの相対座標を計算 */
@@ -232,16 +241,24 @@ class barrage {
             this.xy.x += cx;
             /*移動 */
             this.frame++;
+
             /*壁接触イベント */
             if (this.event.wall.run && this.frame > 10)
                 if (this.xy.y < 0 || this.xy.x < 0 || this.xy.y > config.mapsize.y || this.xy.x > config.mapsize.x)
                     if (this.event.wall.fn(this, ctx, x, y, key))
                         return;
 
-                    /*座標接触イベント */
+                    /*座標接触イベント*/
             if (this.event.xy.run)
                 if (this.event.xy.xy.y < this.xy.y + 10 && this.event.xy.xy.x < this.xy.x + 10 && this.event.xy.xy.y > this.xy.y - 10 && this.event.xy.xy.x > this.xy.x - 10)
                     if (this.event.xy.fn(this, ctx, x, y, key))
+                        return;
+
+                    /*ステージイベント */
+
+            if (this.event.stage.run)
+                if (this.event.stage.stage == stage)
+                    if (this.event.stage.fn(this, ctx, x, y, key))
                         return;
 
                     /*プレイヤー接触 */
@@ -255,16 +272,23 @@ class barrage {
                     view.player[0].hidden = true;
                     view.loop = [];
                     view.action = [];
-                    view.action = [];
                     cam.view = false;
-                    let data = [view.player[0].residue, view.player[0].attack.damage, stage, view.data[0].time.general_purpose()]
+                    /*
+                    let data = [view.player[0].residue, view.player[0].attack.damage, stage, view.data[0].time]
                     view.data[0] = new box(0, 0, function(ctx, x, y, key) {
                         ctx.fillText("残機:" + this.data[0], 0, canvas.height - 50);
                         ctx.fillText("攻撃力:" + this.data[1], 0, canvas.height - 35);
                         ctx.fillText("ステージ:" + this.data[2], 0, canvas.height - 20);
-                        ctx.fillText("タイム:" + this.data[3], 0, canvas.height - 5);
+                        ctx.fillText("タイム:" + this.data[3].general_purpose(), 0, canvas.height - 5);
                     });
                     view.data[0].data = data;
+                    */
+                    setTimeout(
+                        function() {
+                            stage--;
+                            reset("die");
+                            cam.view = true;
+                        }, 1000);
                     return true;
                 };
 
@@ -284,10 +308,12 @@ class barrage {
             let view_x = this.xy.x - cam.xy.x;
             let view_y = this.xy.y - cam.xy.y;
             /*カメラに表示されてないなら */
-            if (view_x + this.config.size.x < 0 || view_x > canvas.width || view_y + this.config.size.y < 0 || view_y > canvas.height)
+
+            if (view_x + this.config.size.x / 2 < 0 || view_x - this.config.size.x / 2 > canvas.width || view_y + this.config.size.y / 2 < 0 || view_y - this.config.size.y / 2 > canvas.height)
                 return;
+
             /*描画 */
-            ctx.strokeRect(x + cx - this.config.size.x / 2, y + cy - this.config.size.x / 2, this.config.size.x, this.config.size.y);
+            ctx.strokeRect(x + cx - x_size, y + cy - y_size, this.config.size.x, this.config.size.y);
         });
         this.box.config = this.config;
         this.box.xy = this.xy;
@@ -302,6 +328,9 @@ class barrage {
                 }
             },
             "xy": {
+                "run": false,
+            },
+            "stage": {
                 "run": false,
             }
         }
@@ -351,6 +380,14 @@ class barrage {
         this.box.event.xy = {
             "run": true,
             "xy": new xy(x, y),
+            "fn": fn
+        }
+        return this;
+    }
+    event_stage(fn, stage) {
+        this.box.event.stage = {
+            "run": true,
+            "stage": stage,
             "fn": fn
         }
         return this;
@@ -434,21 +471,23 @@ class view_canvas {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         /*表示 */
-        let that = this;
-        let r = false;
         for (let group_key in view) {
             if (view[group_key] == undefined)
                 continue;
-            view[group_key].some(function(data, i) {
-                that.task++;
-                r = data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i);
-                return r;
-            });
+            let view_length = view[group_key].length;
+            let i = 0;
+            while (view[group_key][i + view[group_key].length - view_length] !== undefined) {
+                this.task++;
+                let data = view[group_key][i + view[group_key].length - view_length];
+                if (data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i + view[group_key].length - view_length))
+                    break;
+                i++;
+            }
         };
 
         /*ループ */
-        setTimeout(function() {
-            that.view();
+        setTimeout(() => {
+            this.view();
         }, config.view.interval);
     };
 }
