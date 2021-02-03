@@ -474,13 +474,16 @@ class view_canvas {
         for (let group_key in view) {
             if (view[group_key] == undefined)
                 continue;
-            let view_length = view[group_key].length;
             let i = 0;
-            while (view[group_key][i + view[group_key].length - view_length] !== undefined) {
+            while (view[group_key][i] !== undefined) {
                 this.task++;
-                let data = view[group_key][i + view[group_key].length - view_length];
-                if (data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i + view[group_key].length - view_length))
+                let data = view[group_key][i];
+                let view_length = view[group_key].length;
+                if (data.view(ctx, data.xy.x - cam.xy.x, data.xy.y - cam.xy.y, i))
                     break;
+                if (view[group_key].length < view_length)
+                    i += view[group_key].length - view_length;
+
                 i++;
             }
         };
@@ -628,7 +631,8 @@ class item {
                 return;
             ctx.save();
             ctx.strokeStyle = "rgb(100, 100, 255)";
-            ctx.strokeRect(x - 5, y - 5, this.config.size.x, this.config.size.y);
+            ctx.fillStyle = "rgb(100, 100, 255, 0.5)";
+            ctx.fillRect(x - 5, y - 5, this.config.size.x, this.config.size.y);
             ctx.restore();
 
         });
@@ -673,7 +677,8 @@ class item {
                 return;
             ctx.save();
             ctx.strokeStyle = "rgb(255, 100, 155)";
-            ctx.strokeRect(x - 5, y - 5, this.config.size.x, this.config.size.y);
+            ctx.fillStyle = "rgb(255, 100, 155, 0.5)";
+            ctx.fillRect(x - 5, y - 5, this.config.size.x, this.config.size.y);
             ctx.restore();
 
         });
