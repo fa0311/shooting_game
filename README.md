@@ -1,7 +1,8 @@
 # shooting_game
 
 シューティングゲーム<br>
-[index.html](https://fa0311.github.io/shooting_game/index.html)<br>
+[通常版](https://fa0311.github.io/shooting_game/index.html)<br>
+[デバック版](https://fa0311.github.io/shooting_game/debug.html)<br>
 
 # License
 
