@@ -249,6 +249,25 @@ let stage_list = [
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;
+                if (this.frame % 50 > 0) return;
+                for (let i = 0; i < 36; i++)
+                    new barrage(view.boss[0].xy.x, view.boss[0].xy.y, 2, 10, 10).shoot(i * 10 + this.frame / 50).event_view(function(that) {
+                        that.angle += 0.3;
+                        if (that.frame > 1200)
+                            return true;
+                    }).event_wall(function() {}).add();
+            });
+            action.frame = 0;
+            view.action.push(action);
+        },
+        function() {
+            let action;
+            view.boss[0].hp = {
+                "residue": 8000,
+                "max": 8000
+            };
+            action = new box(0, 0, function(ctx, x, y, key) {
+                this.frame++;
                 if (this.frame % 100 > 0) return;
                 shoot_center_circle(3, 2);
                 shoot_circle(2, 3);
@@ -259,8 +278,8 @@ let stage_list = [
         function() {
             let action;
             view.boss[0].hp = {
-                "residue": 8000,
-                "max": 8000
+                "residue": 9000,
+                "max": 9000
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;
@@ -275,8 +294,8 @@ let stage_list = [
         function() {
             let action;
             view.boss[0].hp = {
-                "residue": 9000,
-                "max": 9000
+                "residue": 10000,
+                "max": 10000
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;
