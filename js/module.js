@@ -254,8 +254,11 @@ class barrage {
                     if (this.event.xy.fn(this, ctx, x, y, key))
                         return;
 
-                    /*ステージイベント */
+            if (this.event.view.run)
+                if (this.event.view.fn(this, ctx, x, y, key))
+                    return;
 
+                /*ステージイベント */
             if (this.event.stage.run)
                 if (this.event.stage.stage == stage)
                     if (this.event.stage.fn(this, ctx, x, y, key))
@@ -330,6 +333,9 @@ class barrage {
             "xy": {
                 "run": false,
             },
+            "view": {
+                "run": false,
+            },
             "stage": {
                 "run": false,
             }
@@ -380,6 +386,13 @@ class barrage {
         this.box.event.xy = {
             "run": true,
             "xy": new xy(x, y),
+            "fn": fn
+        }
+        return this;
+    }
+    event_view(fn) {
+        this.box.event.view = {
+            "run": true,
             "fn": fn
         }
         return this;
