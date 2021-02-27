@@ -294,6 +294,29 @@ let stage_list = [
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;
+                if (this.frame % 120 > 60) {
+                    new barrage(view.boss[0].xy.x + 100, view.boss[0].xy.y, 5, 10, 10).shoot(this.angle).add();
+                    new barrage(view.boss[0].xy.x + 300, view.boss[0].xy.y, 5, 10, 10).shoot(this.angle).add();
+                    new barrage(view.boss[0].xy.x - 100, view.boss[0].xy.y, 5, 10, 10).shoot(this.angle2).add();
+                    new barrage(view.boss[0].xy.x - 300, view.boss[0].xy.y, 5, 10, 10).shoot(this.angle2).add();
+                } else {
+                    this.angle = Math.atan2(view.player[0].xy.x - view.boss[0].xy.x - 300, view.player[0].xy.y - view.boss[0].xy.y + 100) * 60 * 0.957;
+                    this.angle2 = Math.atan2(view.player[0].xy.x - view.boss[0].xy.x + 300, view.player[0].xy.y - view.boss[0].xy.y + 100) * 60 * 0.957;
+                }
+                if (this.frame % 60 > 0) return;
+                shoot_circle(2, 2)
+            });
+            action.frame = 0;
+            view.action.push(action);
+        },
+        function() {
+            let action;
+            view.boss[0].hp = {
+                "residue": 10000,
+                "max": 10000
+            };
+            action = new box(0, 0, function(ctx, x, y, key) {
+                this.frame++;
                 if (this.frame % 100 > 0) return;
                 shoot_center_circle(3, 2);
                 shoot_circle(2, 3);
@@ -304,8 +327,8 @@ let stage_list = [
         function() {
             let action;
             view.boss[0].hp = {
-                "residue": 10000,
-                "max": 10000
+                "residue": 11000,
+                "max": 11000
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;
@@ -320,8 +343,8 @@ let stage_list = [
         function() {
             let action;
             view.boss[0].hp = {
-                "residue": 11000,
-                "max": 11000
+                "residue": 12000,
+                "max": 12000
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;

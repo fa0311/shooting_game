@@ -32,6 +32,16 @@
     </div>
     </div>
 
+    <button onclick="view.player[0].residue++">残機追加</button>
+    <button onclick="view.player[0].attack.damage++">攻撃力追加</button>
+    <button onclick="reset(true)">次のステージ</button>
+    <button onclick="stage = 0;reset(true);">リセット</button>
+    <button onclick="config.debug = true">デバッグモード</button>
+    <button onclick="grid_view()">グリッド</button>
+
+
+
+
 </body>
 <script src="js/module.js?var=20210129" type="text/javascript"></script>
 <script src="js/set.js?var=20210129" type="text/javascript"></script>
