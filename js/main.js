@@ -292,8 +292,8 @@ let stage_list = [
         function() {
             let action;
             view.boss[0].hp = {
-                "residue": 10000,
-                "max": 10000
+                "residue": 20000,
+                "max": 20000
             };
             action = new box(0, 0, function(ctx, x, y, key) {
                 this.frame++;
