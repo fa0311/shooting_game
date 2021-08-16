@@ -1,6 +1,11 @@
 let view;
 let cam;
 const canvas = document.getElementById('canvas');
+let innerWidth = window.innerWidth;
+if (innerWidth > 600)
+    innerWidth = 600;
+canvas.width = innerWidth;
+canvas.height = innerWidth * (4 / 6);
 const ctx = canvas.getContext('2d');
 ctx.font = "15px 'ＭＳ ゴシック'";
 ctx.save();

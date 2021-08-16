@@ -3,20 +3,16 @@ html {
 }
 
 * {
-   -ms-user-select: none; /* IE 10+ */
-   -moz-user-select: -moz-none;
-   -khtml-user-select: none;
-   -webkit-user-select: none;
-   user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .row {
     display: flex;
     justify-content: center;
-}
-
-#canvas {
-    max-width: 600px;
 }
 
 .column {
@@ -25,8 +21,10 @@ html {
 }
 
 .item {
-    height: 150px;
-    width: 150px;
+    height: 30vw;
+    width: 30vw;
+    max-height: 150px;
+    max-width: 150px;
 }
 
 .btn {
@@ -40,5 +38,8 @@ html {
 
 .canvas {
     width: 100vw;
-    min-width: 600px;
+}
+
+body {
+    margin: 0px;
 }
